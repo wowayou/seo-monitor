@@ -30,7 +30,7 @@ class InspectionConfig:
         self.page_timeout = 60000  # ms
         self.max_retries = 2
         self.strict_load_mode = True
-        self.resume = False # 是否断点续传
+        self.resume = True # 是否断点续传(如果想要重新巡检的化，需要将该值设为False)
 
 # ================= 📊 报告生成模块 =================
 class ReportGenerator:
