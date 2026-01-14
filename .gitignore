@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.spec
+
+# Data & Config
+*.xlsx
+*.xls
+*.csv
+urls.xlsx
+crawl_result.xlsx
+config.json
+.env
+
+# Reports & Logs
+SEO_Reports/
+screenshot_reports/
+logs/
+*.log
+*.png
+*.jpg
+*.html
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Virtual Env
+venv/
+env/
+.venv/
+
+# Others
+debug过程/
+reademe.assets/
