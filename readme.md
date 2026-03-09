@@ -162,3 +162,151 @@ SEO_Reports/
 *   [x] **v5**: 实现基于 Playwright 的无头浏览器爬虫，支持动态内容与弹窗处理。
 *   [x] **Inspector**: 支持 GUI、断点续传、实时存档、暂停/恢复。
 *   [ ] **Next**: 集成 SSIM 图像识别算法，自动对比今日截图与基准图，实现像素级异常报警。
+
+可以实时写入 实时查看吗？（属于强化，暂时不需要）
+
+优化截图保存格式？
+
+![image-20260115113920989](readme.assets/image-20260115113920989.png)
+
+
+
+---
+
+- [ ] urls.xlsx 丰富
+
+产品详情页和新闻详情页的补充；
+
+对应关系的微调
+
+---
+
+bug?
+
+截取的图片，页眉怎么在下边？
+
+`file:///C:/Users/xhl/Desktop/SEO_Reports/2026-01-15/TRODAT/%E6%96%B0%E9%97%BB%E8%81%9A%E5%90%88%E9%A1%B5.png`
+
+应该是因为设置了 sticky-header 不怎么影响；
+
+```html
+<div id="sticky-header" class="menu-area sticky-menu" style="-webkit-box-shadow: 0 10px 15px rgb(25 25 25 / .1);
+    box-shadow: 0 10px 15px rgb(25 25 25 / .1);">
+                <div class="container custom-container">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mobile-nav-toggler"><i class="flaticon-layout"></i></div>
+                            <div class="menu-wrap">
+                                <nav class="menu-nav">
+                                    <div class="logo">
+                                        <a href="/"><img src="https://www.trodatcn.com/wp-content/uploads/2025/09/logo.png" alt="Logo"></a>
+                                    </div>
+                                    <div class="navbar-wrap main-menu d-none d-xl-flex">
+                                        <ul class="navigation">
+                                            <li class=" menu-item-has-children"><a href="https://www.trodatcn.com/" class="section-link">Home</a>
+                                                <!--<ul class="sub-menu">-->
+                                                <!--    <li class="active"><a href="index.html">Home One</a></li>-->
+                                                <!--    <li><a href="index-2.html">Home Two</a></li>-->
+                                                <!--    <li><a href="index-3.html">Home Three</a></li>-->
+                                                <!--</ul>-->
+                                            <div class="dropdown-btn"><span class="fas fa-angle-down"></span></div></li>
+                                            <!--<li><a href="#features" class="section-link">Features</a></li>-->
+                                            <!--<li><a href="#paroller" class="section-link">Product</a></li>-->
+                                            <!--<li><a href="#ingredient" class="section-link">Ingredient</a></li>-->
+                                            <!--<li><a href="#pricing" class="section-link">Pricing</a></li>-->
+                                            <li class=" menu-item-has-children"><a href="https://www.trodatcn.com/products/">Products</a>
+                                                <ul class="sub-menu">
+                                                                                                                <li><a href="https://www.trodatcn.com/dredging-device/" class="lists">Dredging Device</a></li>
+                                                                                                                <li><a href="https://www.trodatcn.com/enginegenerator-set/" class="lists">Engine&amp;Generator set</a></li>
+                                                                                                                <li><a href="https://www.trodatcn.com/dredging-pump/" class="lists">Dredging Pump</a></li>
+                                                                                                                <li><a href="https://www.trodatcn.com/deck-machinery/" class="lists">Deck machinery</a></li>
+                                                                                                                <li><a href="https://www.trodatcn.com/suction-and-discharge-pipeline-system/" class="lists">Suction and discharge pipeline system</a></li>
+                                                                                                                <li><a href="https://www.trodatcn.com/dredging-instruments/" class="lists">Dredging instruments</a></li>
+                                                                                                                <li><a href="https://www.trodatcn.com/outfitting/" class="lists">Outfitting</a></li>
+                                                                                                                <li><a href="https://www.trodatcn.com/special-equipment-for-dredging-maintenance/" class="lists">Special equipment for dredging maintenance</a></li>
+                                                          
+                                                </ul>
+                                            <div class="dropdown-btn"><span class="fas fa-angle-down"></span></div></li>
+                                            <li class="active menu-item-has-children"><a href="https://www.trodatcn.com/news/" class="section-link">News</a>
+                                                <ul class="sub-menu">
+                                                                                                                <li><a href="https://www.trodatcn.com/news_category/company-news/" class="lists">Company News</a></li>
+                                                                                                                <li><a href="https://www.trodatcn.com/news_category/industry-news/" class="lists">Industry News</a></li>
+                                                                                                    </ul>
+                                            <div class="dropdown-btn"><span class="fas fa-angle-down"></span></div></li>
+                                            <li class=" menu-item-has-children"><a href="https://www.trodatcn.com/application/">Application</a><div class="dropdown-btn"><span class="fas fa-angle-down"></span></div></li>
+                                            <li class=" menu-item-has-children"><a href="https://www.trodatcn.com/service/">Service</a><div class="dropdown-btn"><span class="fas fa-angle-down"></span></div></li>
+                                            <li class=" menu-item-has-children"><a href="https://www.trodatcn.com/about/">About Us</a><div class="dropdown-btn"><span class="fas fa-angle-down"></span></div></li>
+                                            <li class=" menu-item-has-children"><a href="https://www.trodatcn.com/contact/">Contact Us</a><div class="dropdown-btn"><span class="fas fa-angle-down"></span></div></li>
+                                        </ul>
+                                    </div>
+                                    <div class="header-action d-none d-sm-block">
+                                        <ul>
+                                            <li class="header-search"><a href="#"><i class="flaticon-search"></i></a></li>
+                                            <li class="offCanvas-btn d-none d-xl-block"><a href="#" class="navSidebar-button"><i class="flaticon-layout"></i></a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+```
+
+## 局限性
+
+![image-20260203135512159](readme.assets/image-20260203135512159.png)
+
+这种能访问到（cloudfalre fake verification 问题）；也能截图。
+
+但是我们通过浏览器访问就是不行的！=> 所以还需要调整巡检脚本。
+
+使用 playwright 来模拟浏览器？？？
+
+解决方案
+
+```java
+针对“延迟触发的假验证攻击”，研究在无头浏览器（Playwright/Puppeteer）中实现“真实用户模拟器”的技术方案，包括模拟随机停留时间、鼠标移动、页面滚动，并识别注入式验证组件。
+```
+
+模拟随机停留时间，鼠标移动
+
+---
+
+为啥脚本就能访问这种呢？
+
+**脚本差异点**：自动化脚本（Playwright）与真实用户的行为模式（浏览器指纹、交互逻辑）完全不同，导致恶意脚本未能触发。
+
+![image-20260203145625399](readme.assets/image-20260203145625399.png)
+
+**缺乏“真实”交互触发**： 伪造的 Cloudflare 验证往往需要检测到 `mousemove`（鼠标移动）或 `scroll`（滚动）等**人类特有行为**后才会弹出。你的脚本虽然有滚动逻辑，但速度极快且路径机械，可能未达到恶意代码的触发阈值。
+
+这种也返回成功（因为截图成功了！）
+
+![image-20260209121159723](readme.assets/image-20260209121159723.png)
+
+==总结：还是**需要打开截图**看一下！！！==
+
+---
+
+**中间退出功能是没有实现的；**
+
+容错机制有问题！
+
+这种进入网页之后会跳转到短链接的问题也不能检查出来！！！
+
+而且截图也是正常的！（是会影响用户的体验的）
+
+![image-20260209123714897](readme.assets/image-20260209123714897.png)
+
+301 重定向的问题；
+
+---
+
+果然还是**得人工**！（整理一份人工检查的url吧）
+
+---
+
+无法完全模拟呀！
+

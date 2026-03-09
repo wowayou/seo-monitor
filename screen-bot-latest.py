@@ -9,6 +9,8 @@ from tkinter import filedialog, messagebox, ttk
 from datetime import datetime
 import pandas as pd
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
+import random
+from urllib.parse import urlparse
 
 # ================= ⚙️ 全局配置与常量 =================
 
@@ -31,6 +33,7 @@ class InspectionConfig:
         self.max_retries = 2
         self.strict_load_mode = True
         self.resume = True # 是否断点续传(如果想要重新巡检的化，需要将该值设为False)
+        self.retention_time = 15 # ms -> s 页面留存时间
 
 # ================= 📊 报告生成模块 =================
 class ReportGenerator:
@@ -443,6 +446,35 @@ class WebsiteInspector:
         else:
             print(message)
 
+    async def simulate_human_and_wait(self, page, duration_s):
+        """模拟真实用户行为并等待一段时间，用于触发延迟攻击"""
+        if duration_s <= 0:
+            return
+        
+        start_time = time.time()
+        viewport = page.viewport_size
+        width = viewport['width'] if viewport else 1920
+        height = viewport['height'] if viewport else 1080
+        
+        while time.time() - start_time < duration_s:
+            if STOP_REQUESTED: break
+            while self.paused: await asyncio.sleep(0.5)
+            
+            try:
+                # 随机移动鼠标
+                x = random.randint(100, width - 100)
+                y = random.randint(100, height - 100)
+                await page.mouse.move(x, y, steps=10)
+                
+                # 随机小幅度滚动
+                scroll_y = random.choice([-100, 100, 200, -200, 300, 0, 0])
+                if scroll_y != 0:
+                    await page.mouse.wheel(0, scroll_y)
+            except Exception:
+                pass
+                
+            await asyncio.sleep(random.uniform(0.5, 2.0))
+
     async def enhanced_scroll_and_wait(self, page):
         """深度优化的滚动策略"""
         try:
@@ -559,6 +591,44 @@ class WebsiteInspector:
                             await page.goto(url, timeout=30000, wait_until="domcontentloaded")
 
                         await self.enhanced_scroll_and_wait(page)
+                        
+                        # --- 新增: 延迟留存与异常检测 ---
+                        initial_domain = urlparse(url).netloc
+                        
+                        if self.cfg.retention_time > 0:
+                            self.log(f"   [留存等待] {project} - 等待 {self.cfg.retention_time}s 以检测延迟攻击...")
+                            await self.simulate_human_and_wait(page, self.cfg.retention_time)
+                        
+                        # 检测重定向
+                        current_url = page.url
+                        current_domain = urlparse(current_url).netloc
+                        if current_domain and initial_domain and current_domain != initial_domain:
+                            # 简单的判断逻辑，如果完全不包含（比如跨域且不是子域名）
+                            if not (initial_domain.endswith(current_domain) or current_domain.endswith(initial_domain)):
+                                raise Exception(f"检测到恶意重定向: {initial_domain} -> {current_domain}")
+                        
+                        # 检测异常 DOM
+                        suspicious_detected = await page.evaluate('''() => {
+                            // 检查特征文本
+                            const text = document.body.innerText.toLowerCase();
+                            const keywords = ["verify you are human", "checking your browser", "just a moment..."];
+                            if (keywords.some(k => text.includes(k))) return "发现假验证文本特征";
+                            
+                            // 检查异常全屏 iframe (可能覆盖真实内容)
+                            const iframes = document.querySelectorAll('iframe');
+                            for (let frame of iframes) {
+                                const rect = frame.getBoundingClientRect();
+                                const vw = window.innerWidth;
+                                const vh = window.innerHeight;
+                                if (rect.width > vw * 0.8 && rect.height > vh * 0.8) {
+                                    return "发现异常全屏Iframe拦截";
+                                }
+                            }
+                            return null;
+                        }''')
+                        if suspicious_detected:
+                            raise Exception(f"页面探伤异常: {suspicious_detected}")
+                        # ----------------------------------
                         
                         res["LoadTime_s"] = round(time.time() - start_t, 2)
                         await page.screenshot(path=save_path, full_page=True, type='png')
@@ -707,6 +777,7 @@ class LauncherApp:
         self.output_path = tk.StringVar()
         self.proxy = tk.StringVar()
         self.concurrency = tk.IntVar(value=2)
+        self.retention_time = tk.IntVar(value=15)
         
         # 尝试自动寻找同级目录的xlsx
         default_excel = os.path.join(os.path.dirname(os.path.abspath(__file__)), "urls.xlsx")
@@ -786,6 +857,10 @@ class LauncherApp:
         ttk.Label(frame3, text="并发任务数:").grid(row=1, column=0, sticky=tk.W, pady=5)
         ttk.Spinbox(frame3, from_=1, to=10, textvariable=self.concurrency, width=5).grid(row=1, column=1, sticky=tk.W, padx=5)
         
+        ttk.Label(frame3, text="页面留存时间(秒):").grid(row=2, column=0, sticky=tk.W, pady=5)
+        ttk.Spinbox(frame3, from_=0, to=60, textvariable=self.retention_time, width=5).grid(row=2, column=1, sticky=tk.W, padx=5)
+        ttk.Label(frame3, text="抵御延迟验证攻击").grid(row=2, column=2, sticky=tk.W, padx=5)
+        
         # 4. 日志区域 (最后pack，占据剩余中间空间)
         ttk.Label(main_frame, text="运行日志:").pack(side=tk.TOP, anchor=tk.W, pady=(10, 0))
         self.log_text = tk.Text(main_frame, height=8, width=70, font=('Consolas', 9), state='disabled')
@@ -825,6 +900,7 @@ class LauncherApp:
         cfg.output_root = self.output_path.get()
         cfg.proxy_server = self.proxy.get().strip() or None
         cfg.concurrent_tasks = self.concurrency.get()
+        cfg.retention_time = self.retention_time.get()
         
         # 检查是否可以断点续传
         today = datetime.now().strftime("%Y-%m-%d")
